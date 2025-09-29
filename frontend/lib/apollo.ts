@@ -2,10 +2,10 @@ import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from '@apollo/client/link/context';
 import { useAuthStore } from './authStore';
 
-console.log("GraphQL endpoint:", process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "http://127.0.0.1:8000/graphql");
+console.log("GraphQL endpoint:", process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "https://resumeforgeai-zawv.onrender.com/graphql");
 
 const httpLink = createHttpLink({
-  uri: "http://127.0.0.1:8000/graphql",
+  uri: "https://resumeforgeai-zawv.onrender.com/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
