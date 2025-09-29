@@ -12,7 +12,7 @@ export default function ResultsPage() {
   const jobId = params.job_id as string;
 
   const { data: userData, loading: userLoading } = useQuery(GET_ME);
-  const isPremium = userData?.me?.isPremium || false;
+  const isPremium = (userData as any)?.me?.isPremium || false;
 
   const { data, loading, error, startPolling, stopPolling } = useQuery(GET_ANALYSIS_JOB, {
     variables: { id: jobId },

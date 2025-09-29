@@ -18,7 +18,7 @@ export default function AppPage() {
   const router = useRouter();
 
   const { data: userData, loading: userLoading } = useQuery(GET_ME);
-  const isPremium = userData?.me?.isPremium || false;
+  const isPremium = (userData as any)?.me?.isPremium || false;
 
   const [createAnalysisJob, { loading: mutationLoading, error: mutationError }] = useMutation(CREATE_ANALYSIS_JOB);
 
