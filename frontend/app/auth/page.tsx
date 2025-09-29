@@ -53,7 +53,7 @@ export default function AuthPage() {
             variables: { username, password },
           });
           if ((authData as any)?.tokenAuth?.token) {
-            loginUser(authData.tokenAuth.token, data.createUser.user);
+            loginUser((authData as any).tokenAuth.token, (data as any).createUser.user);
             router.push('/app');
           } else {
             setError('Registration successful, but automatic login failed.');

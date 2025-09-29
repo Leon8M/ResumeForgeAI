@@ -17,14 +17,14 @@ export default function PricingPage() {
 
   const [upgradeToPremium, { loading }] = useMutation(UPGRADE_TO_PREMIUM, {
     onCompleted: (data) => {
-      if (data.upgradeToPremium.success) {
-        setMessage(data.upgradeToPremium.message);
+      if ((data as any).upgradeToPremium.success) {
+        setMessage((data as any).upgradeToPremium.message);
         setIsError(false);
         // Optionally refetch user data to update premium status in UI
         // client.refetchQueries({ include: [GET_ME] });
         router.push('/app'); // Redirect to app page after successful upgrade
       } else {
-        setMessage(data.upgradeToPremium.message || "Failed to upgrade to Premium.");
+        setMessage((data as any).upgradeToPremium.message || "Failed to upgrade to Premium.");
         setIsError(true);
       }
     },

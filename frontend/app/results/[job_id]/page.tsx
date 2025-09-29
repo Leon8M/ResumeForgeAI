@@ -20,7 +20,7 @@ export default function ResultsPage() {
   });
 
   useEffect(() => {
-    if (data?.job?.status === 'COMPLETED' || data?.job?.status === 'FAILED') {
+    if ((data as any)?.job?.status === 'COMPLETED' || (data as any)?.job?.status === 'FAILED') {
       stopPolling();
     }
   }, [data, stopPolling]);
@@ -58,7 +58,7 @@ export default function ResultsPage() {
     );
   }
 
-  const job = data?.job;
+  const job = (data as any)?.job;
 
   if (!job) {
     return (
