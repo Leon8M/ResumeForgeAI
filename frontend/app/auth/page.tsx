@@ -31,10 +31,10 @@ export default function AuthPage() {
         const { data } = await tokenAuthMutation({
           variables: { username, password },
         });
-        if (data?.tokenAuth?.token) {
+        if ((data as any)?.tokenAuth?.token) {
           // For simplicity, we're not fetching user details here, just using username
           // In a real app, you'd decode the token or fetch user info
-          loginUser(data.tokenAuth.token, { id: "", username, email: "" }); // Placeholder user object
+          loginUser((data as any).tokenAuth.token, { id: "", username, email: "" }); // Placeholder user object
           router.push('/app');
         } else {
           setError('Login failed. Please check your credentials.');
@@ -47,12 +47,12 @@ export default function AuthPage() {
         const { data } = await createUserMutation({
           variables: { username, email, password },
         });
-        if (data?.createUser?.user) {
+        if ((data as any)?.createUser?.user) {
           // After successful registration, automatically log in the user
           const { data: authData } = await tokenAuthMutation({
             variables: { username, password },
           });
-          if (authData?.tokenAuth?.token) {
+          if ((authData as any)?.tokenAuth?.token) {
             loginUser(authData.tokenAuth.token, data.createUser.user);
             router.push('/app');
           } else {
