@@ -34,7 +34,7 @@ export default function AppPage() {
         },
       });
       if (result.data) {
-        const jobId = result.data.createAnalysisJob.job.id;
+        const jobId = (result.data as any)?.createAnalysisJob.job.id;
         router.push(`/results/${jobId}`);
       }
     } catch (err: any) {
