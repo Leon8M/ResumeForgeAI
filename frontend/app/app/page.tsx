@@ -80,7 +80,7 @@ export default function AppPage() {
               <Checkbox
                 id="generate-full-resume"
                 checked={generateFullResume}
-                onCheckedChange={setGenerateFullResume}
+                onCheckedChange={(checked) => setGenerateFullResume(checked === true)}
                 disabled={!isPremium}
               />
               <Label htmlFor="generate-full-resume">
@@ -91,7 +91,7 @@ export default function AppPage() {
               <Checkbox
                 id="generate-cover-letter"
                 checked={generateCoverLetter}
-                onCheckedChange={setGenerateCoverLetter}
+                onCheckedChange={(checked) => setGenerateCoverLetter(checked === true)}
                 disabled={!isPremium}
               />
               <Label htmlFor="generate-cover-letter">
