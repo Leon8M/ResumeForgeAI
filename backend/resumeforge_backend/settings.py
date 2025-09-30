@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
-    'django_celery_results',
     'api.apps.ApiConfig',
     'rest_framework',
     'rest_framework_simplejwt',
