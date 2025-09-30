@@ -1,7 +1,7 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/client";
-import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, InMemoryCache, createHttpLink, from, Observable, FetchResult } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { useAuthStore } from './authStore';
+import { useAuthStore } from "./authStore";
 
 const httpLink = createHttpLink({
   uri: "https://resumeforgeai-zawv.onrender.com/graphql",
@@ -13,55 +13,65 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       authorization: accessToken ? `JWT ${accessToken}` : "",
-    }
-  }
+    },
+  };
 });
 
-// Function to get a new token from the refresh endpoint
-const refreshToken = async () => {
+const refreshToken = async (): Promise<string> => {
   try {
-    const res = await fetch('/api/auth/refresh', { method: 'POST' });
+    const res = await fetch("/api/auth/refresh", { method: "POST" });
     const { token } = await res.json();
     if (!token) {
-      throw new Error('No token returned from refresh');
+      throw new Error("No token returned from refresh");
     }
     useAuthStore.getState().setAccessToken(token);
     return token;
   } catch (error) {
-    console.error('Failed to refresh token', error);
-    // If refresh fails, log the user out
+    console.error("Failed to refresh token", error);
     useAuthStore.getState().logout();
     throw error;
   }
 };
 
-const errorLink = onError(({ graphQLErrors, operation, forward }) => {
-  if (graphQLErrors) {
-    for (let err of graphQLErrors) {
-      // Check for a specific error code or message that indicates an expired token
-      if (err.extensions?.code === 'invalid-jwt' || err.message.includes("Signature has expired")) {
-        // Token is expired, try to refresh it
-        return new Promise(resolve => {
-          refreshToken().then(newAccessToken => {
-            // Retry the original request with the new token
-            const oldHeaders = operation.getContext().headers;
-            operation.setContext({
-              headers: {
-                ...oldHeaders,
-                authorization: `JWT ${newAccessToken}`,
-              },
-            });
-            resolve(forward(operation));
-          }).catch(() => {
-            // Refresh failed, do not retry the request
-            resolve(undefined);
+// Use inline typing instead of ErrorResponse
+const errorLink = onError(
+  ({ graphQLErrors, operation, forward }: { 
+    graphQLErrors?: readonly any[]; 
+    operation: any; 
+    forward: any; 
+  }) => {
+    if (graphQLErrors) {
+      for (const err of graphQLErrors) {
+        if (
+          err.extensions?.code === "invalid-jwt" ||
+          err.message.includes("Signature has expired")
+        ) {
+          return new Observable<FetchResult>((observer) => {
+            refreshToken()
+              .then((newAccessToken: string) => {
+                const oldHeaders = operation.getContext().headers;
+                operation.setContext({
+                  headers: {
+                    ...oldHeaders,
+                    authorization: `JWT ${newAccessToken}`,
+                  },
+                });
+
+                forward(operation).subscribe({
+                  next: observer.next.bind(observer),
+                  error: observer.error.bind(observer),
+                  complete: observer.complete.bind(observer),
+                });
+              })
+              .catch((error) => {
+                observer.error(error);
+              });
           });
-        });
+        }
       }
     }
   }
-});
-
+);
 
 const client = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
