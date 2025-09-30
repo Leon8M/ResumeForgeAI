@@ -16,7 +16,7 @@ function AuthHandler() {
         if (!loading) {
             if ((data as any) && (data as any).me) {
                 // We have a token and we successfully fetched the user
-                setUser(data.me, accessToken);
+                setUser((data as any).me, accessToken);
             } else {
                 // We either have no token, or the token is invalid (query failed)
                 // In both cases, we ensure the user is logged out.
