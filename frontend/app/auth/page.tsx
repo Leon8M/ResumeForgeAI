@@ -17,7 +17,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const loginUser = useAuthStore((state) => state.login);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [createUserMutation, { loading: createLoading }] = useMutation(CREATE_USER);
   const [tokenAuthMutation, { loading: authLoading }] = useMutation(TOKEN_AUTH);
@@ -31,10 +31,13 @@ export default function AuthPage() {
         const { data } = await tokenAuthMutation({
           variables: { username, password },
         });
+
         if ((data as any)?.tokenAuth?.token) {
-          // For simplicity, we're not fetching user details here, just using username
-          // In a real app, you'd decode the token or fetch user info
-          loginUser((data as any).tokenAuth.token, { id: "", username, email: "" }); // Placeholder user object
+          // ✅ Correct argument order: (user, token)
+          setUser(
+            { id: "", username, email, isPremium: false },
+            (data as any).tokenAuth.token
+          );
           router.push('/app');
         } else {
           setError('Login failed. Please check your credentials.');
@@ -47,13 +50,17 @@ export default function AuthPage() {
         const { data } = await createUserMutation({
           variables: { username, email, password },
         });
+
         if ((data as any)?.createUser?.user) {
-          // After successful registration, automatically log in the user
           const { data: authData } = await tokenAuthMutation({
             variables: { username, password },
           });
+
           if ((authData as any)?.tokenAuth?.token) {
-            loginUser((authData as any).tokenAuth.token, (data as any).createUser.user);
+            setUser(
+              (data as any).createUser.user,
+              (authData as any).tokenAuth.token
+            );
             router.push('/app');
           } else {
             setError('Registration successful, but automatic login failed.');
@@ -73,7 +80,9 @@ export default function AuthPage() {
     <div className="flex items-center justify-center min-h-screen bg-slate-50">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle className="text-center">{isLogin ? 'Login' : 'Register'}</CardTitle>
+          <CardTitle className="text-center">
+            {isLogin ? 'Login' : 'Register'}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuthSubmit} className="grid gap-4">
@@ -88,6 +97,7 @@ export default function AuthPage() {
                 required
               />
             </div>
+
             {!isLogin && (
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -101,6 +111,7 @@ export default function AuthPage() {
                 />
               </div>
             )}
+
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -111,14 +122,23 @@ export default function AuthPage() {
                 required
               />
             </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (isLogin ? 'Logging in...' : 'Registering...') : (isLogin ? 'Login' : 'Register')}
+              {loading
+                ? (isLogin ? 'Logging in...' : 'Registering...')
+                : (isLogin ? 'Login' : 'Register')}
             </Button>
           </form>
+
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+
           <div className="mt-4 text-center text-sm">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <Button variant="link" onClick={() => setIsLogin(!isLogin)} className="p-0 h-auto">
+            <Button
+              variant="link"
+              onClick={() => setIsLogin(!isLogin)}
+              className="p-0 h-auto"
+            >
               {isLogin ? 'Sign up' : 'Login'}
             </Button>
           </div>
