@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/navigation';
 import { TOKEN_AUTH } from '@/lib/mutations';
 import { useAuthStore } from '@/lib/authStore';
@@ -19,8 +19,8 @@ export default function LoginPage() {
 
   const [login, { loading, error }] = useMutation(TOKEN_AUTH, {
     onCompleted: (data) => {
-      if (data.tokenAuth.success) {
-        const { token, user } = data.tokenAuth;
+      if ((data as any).tokenAuth.success) {
+        const { token, user } = (data as any).tokenAuth;
         setUser(user, token);
         router.push('/app'); // Redirect to the main app page
       }

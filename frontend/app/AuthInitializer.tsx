@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/authStore';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GET_ME } from '@/lib/queries';
 
 function AuthHandler() {
@@ -14,7 +14,7 @@ function AuthHandler() {
 
     useEffect(() => {
         if (!loading) {
-            if (data && data.me) {
+            if ((data as any) && (data as any).me) {
                 // We have a token and we successfully fetched the user
                 setUser(data.me, accessToken);
             } else {

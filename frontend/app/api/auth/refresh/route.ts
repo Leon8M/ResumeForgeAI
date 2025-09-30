@@ -9,7 +9,7 @@ const GRAPHQL_ENDPOINT = "https://resumeforgeai-zawv.onrender.com/graphql";
 
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
-  const refreshTokenCookie = cookieStore.get(REFRESH_TOKEN_COOKIE_NAME);
+  const refreshTokenCookie = (await cookieStore).get(REFRESH_TOKEN_COOKIE_NAME);
 
   if (!refreshTokenCookie) {
     return NextResponse.json({ error: 'Refresh token cookie not found' }, { status: 401 });
