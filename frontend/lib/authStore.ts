@@ -1,23 +1,42 @@
 import { create } from 'zustand';
 
+// Define the shape of the user object
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  isPremium: boolean;
+}
+
 interface AuthState {
-  isAuthenticated: boolean;
+  user: User | null;
   accessToken: string | null;
-  user: { id: string; username: string; email: string } | null;
-  login: (accessToken: string, user: { id: string; username: string; email: string }) => void;
+  isInitializing: boolean; // To track initial auth check
+  setUser: (user: User | null, accessToken: string | null) => void;
+  setAccessToken: (accessToken: string | null) => void;
+  setInitializing: (isInitializing: boolean) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  accessToken: null,
   user: null,
-  login: (accessToken, user) => {
-    localStorage.setItem('accessToken', accessToken);
-    set({ isAuthenticated: true, accessToken, user });
+  accessToken: null,
+  isInitializing: true, // Start in an initializing state
+  
+  setUser: (user, accessToken) => {
+    set({ user, accessToken, isInitializing: false });
   },
+
+  setAccessToken: (accessToken) => {
+    set({ accessToken });
+  },
+
+  setInitializing: (isInitializing) => {
+    set({ isInitializing });
+  },
+
   logout: () => {
-    localStorage.removeItem('accessToken');
-    set({ isAuthenticated: false, accessToken: null, user: null });
+    // Clear user and token from memory
+    set({ user: null, accessToken: null, isInitializing: false });
   },
 }));

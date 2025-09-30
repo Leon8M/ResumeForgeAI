@@ -1,19 +1,26 @@
-import Link from 'next/link';
+"use client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export default function LandingPage() {
+export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-      <main className="text-center">
+    <main className="flex items-center justify-center min-h-screen flex-col gap-4 bg-slate-50">
+      <div className="text-center">
         <h1 className="text-5xl font-bold text-slate-900">
-          Forge Your Future with AI
+          Welcome to ResumeForge AI
         </h1>
-        <p className="mt-4 text-lg text-slate-600">
+        <p className="mt-2 text-lg text-slate-600">
           Instantly tailor your resume and cover letter for any job description.
         </p>
-        <Link href="/app" className="mt-8 inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
-          Get Started for Free
-        </Link>
-      </main>
-    </div>
+      </div>
+      <div className="flex gap-4 mt-4">
+        <Button asChild>
+          <Link href="/auth/login">Sign In</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/auth/register">Register</Link>
+        </Button>
+      </div>
+    </main>
   );
 }

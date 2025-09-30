@@ -26,11 +26,24 @@ export const CREATE_USER = gql`
 export const TOKEN_AUTH = gql`
   mutation TokenAuth($username: String!, $password: String!) {
     tokenAuth(username: $username, password: $password) {
+      success
       token
-      payload
-      refreshExpiresIn
+      user {
+        id
+        username
+        email
+        isPremium
+      }
     }
   }
+`;
+
+export const LOGOUT = gql`
+    mutation Logout {
+        logout {
+            success
+        }
+    }
 `;
 
 export const UPGRADE_TO_PREMIUM = gql`

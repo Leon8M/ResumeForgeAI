@@ -139,12 +139,49 @@ GRAPHENE = {
     ],
 }
 
-# Celery Configuration
-CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', 'amqps://ujfpgjlt:6HAcVfAvtNfMqokfUrCve-r6cLIKOOPZ@toucan.lmq.cloudamqp.com/ujfpgjlt')
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+def custom_allow_any(info, **kwargs):
+    # List of operations that can be accessed without authentication
+    public_operations = [
+        'tokenAuth', 
+        'verifyToken', 
+        'refreshToken', 
+        'createUser',
+        '__schema'  # Introspection query
+    ]
+    
+    # Get the operation name from the request context
+    operation_name = info.operation.name.value if info.operation.name else ''
+
+    # Check if the operation is in the public list
+    if operation_name in public_operations:
+        return True
+        
+    # For mutations, check the specific mutation field name
+    if info.operation.operation == 'mutation':
+        for field in info.operation.selection_set.selections:
+            if field.name.value in public_operations:
+                return True
+
+    return False
+
+GRAPHQL_JWT = {
+    "JWT_ALLOW_ANY_HANDLER": "resumeforge_backend.settings.custom_allow_any",
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    "JWT_REFRESH_EXPIRATION_DELTA": datetime.timedelta(days=7),
+    "JWT_EXPIRATION_DELTA": datetime.timedelta(minutes=15),
+    "JWT_COOKIE_NAME": "refresh_token",
+    "JWT_REFRESH_TOKEN_COOKIE_NAME": "refresh_token",
+    "JWT_COOKIE_SECURE": not DEBUG,
+    "JWT_COOKIE_SAMESITE": "Lax",
+}
+
+
 
 # Gemini API Key
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyCe8_sRp_ksIJu8ig-VzdRt-JandxeZyUk')
