@@ -49,6 +49,11 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logging.info(f"INSTALLED_APPS: {INSTALLED_APPS}")
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
