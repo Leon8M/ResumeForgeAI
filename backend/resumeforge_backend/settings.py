@@ -150,29 +150,28 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 def custom_allow_any(info, **kwargs):
-    # List of operations that can be accessed without authentication
-    public_operations = [
-        'tokenAuth', 
-        'verifyToken', 
-        'refreshToken', 
-        'createUser',
-        '__schema'  # Introspection query
-    ]
-    
-    # Get the operation name from the request context
-    operation_name = info.operation.name.value if info.operation.name else ''
-
-    # Check if the operation is in the public list
-    if operation_name in public_operations:
-        return True
-        
-    # For mutations, check the specific mutation field name
-    if info.operation.operation == 'mutation':
-        for field in info.operation.selection_set.selections:
-            if field.name.value in public_operations:
-                return True
-
-    return False
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    try:
+        operation_name = info.operation.name.value if info.operation.name else ''
+        logging.info(f"Operation name: {operation_name}")
+        public_operations = [
+            'tokenAuth', 
+            'verifyToken', 
+            'refreshToken', 
+            'createUser',
+            '__schema'
+        ]
+        if operation_name in public_operations:
+            return True
+        if info.operation.operation == 'mutation':
+            for field in info.operation.selection_set.selections:
+                if field.name.value in public_operations:
+                    return True
+        return False
+    except Exception as e:
+        logging.error(f"Error in custom_allow_any: {e}")
+        return False
 
 GRAPHQL_JWT = {
     "JWT_ALLOW_ANY_HANDLER": "resumeforge_backend.settings.custom_allow_any",
